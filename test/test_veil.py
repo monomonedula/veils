@@ -3,7 +3,8 @@ from unittest.mock import Mock
 import pytest
 
 from veil.veil import Veil
-from veil.unpiercable import Unpiercable
+from veil.veil import veil
+from veil.unpiercable import Unpiercable, unpiercable
 
 
 class Foo:
@@ -27,12 +28,35 @@ class Foo:
     async def dummy_async(self):
         return "Dummy async method"
 
+    def __str__(self):
+        return "Foo object str"
 
-def test_veil_piercing():
+    def __getitem__(self, item):
+        return str(item)
+
+
+@pytest.mark.parametrize("veil_of", [unpiercable, veil])
+def test_dunder(veil_of):
+    obj = veil_of(Foo(), methods={"__str__": "Hello, world!", "__getitem__": "42"})
+    assert str(obj) == "Hello, world!"
+    assert obj["foo"] == "42"
+
+
+def test_dunder_piercing():
+    obj = veil(Foo(), methods={"__str__": "Hello, world!", "__getitem__": "42"})
+    assert str(obj) == "Hello, world!", "should return cached value"
+    assert obj["foo"] == "42", "should return cached value"
+    assert obj.bar() == 42
+    assert str(obj) == "Foo object str", "should be pierced"
+    assert obj["foo"] == "foo", "should be pierced"
+
+
+@pytest.mark.parametrize("veil_class", [veil, Veil])
+def test_veil_piercing(veil_class):
     """
     Should pierce after calling a method that is not cached
     """
-    veiled = Veil(Foo(), methods={"bar": 69})
+    veiled = veil_class(Foo(), methods={"bar": 69})
     for _ in range(10):
         assert veiled.bar() == 69
 
@@ -40,11 +64,12 @@ def test_veil_piercing():
     assert veiled.bar() == 42
 
 
-def test_veild_piercing_async():
+@pytest.mark.parametrize("veil_class", [veil, Veil])
+def test_veild_piercing_async(veil_class):
     """
     Should pierce after calling an async method that is not cached
     """
-    veiled = Veil(Foo(), methods={"bar": 69})
+    veiled = veil_class(Foo(), methods={"bar": 69})
     for _ in range(10):
         assert veiled.bar() == 69
 
@@ -52,11 +77,12 @@ def test_veild_piercing_async():
     assert veiled.bar() == 42
 
 
-def test_veil_piercing_prop():
+@pytest.mark.parametrize("veil_class", [veil, Veil])
+def test_veil_piercing_prop(veil_class):
     """
     Should pierce after accessing a property that is not cached
     """
-    veiled = Veil(Foo(), methods={"bar": 69}, props={"prop1": "Cached prop1"})
+    veiled = veil_class(Foo(), methods={"bar": 69}, props={"prop1": "Cached prop1"})
     assert veiled.prop1 == "Cached prop1"
     assert veiled.bar() == 69
     assert veiled.prop2 == "Property 2"
@@ -64,7 +90,7 @@ def test_veil_piercing_prop():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("veil_class", [Veil, Unpiercable])
+@pytest.mark.parametrize("veil_class", [veil, Veil, unpiercable, Unpiercable])
 async def test_veil_simple_with_args(veil_class):
     veiled = veil_class(
         Foo(),
@@ -81,17 +107,18 @@ async def test_veil_simple_with_args(veil_class):
     )
 
 
-@pytest.mark.parametrize("veil_class", [Veil, Unpiercable])
+@pytest.mark.parametrize("veil_class", [veil, Veil, unpiercable, Unpiercable])
 def test_veil_isinstance(veil_class):
     assert isinstance(veil_class(Foo()), Foo)
 
 
 @pytest.mark.asyncio
-async def test_unpiercable():
+@pytest.mark.parametrize("veil_class", [unpiercable, Unpiercable])
+async def test_unpiercable(veil_class):
     """
     Should not get pierced even after accessing any property or method
     """
-    veiled = Unpiercable(
+    veiled = veil_class(
         Foo(),
         methods={"bar": 69},
         async_methods={"dummy_async": "Decorated dummy"},
@@ -108,7 +135,7 @@ async def test_unpiercable():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("veil_class", [Veil, Unpiercable])
+@pytest.mark.parametrize("veil_class", [veil, Veil, unpiercable, Unpiercable])
 async def test_not_calling_decorated(veil_class):
     mock = Mock()
     veiled = veil_class(
@@ -120,3 +147,13 @@ async def test_not_calling_decorated(veil_class):
     assert await veiled.dummy_async() == "Decorated dummy"
     mock.bar.assert_not_called()
     mock.dummy_async.assert_not_called()
+
+
+@pytest.mark.parametrize("veil_class", [veil, Veil, unpiercable, Unpiercable])
+def test_repr(veil_class):
+    obj = Foo()
+    veiled = veil_class(obj, methods={"bar": 69})
+    assert repr(veiled) == "<{} at 0x{:x} for {} at 0x{:x}>".format(
+        type(veiled).__name__, id(veiled), type(obj).__name__, id(obj)
+    )
+    assert veiled.bar() == 69, "should not be pierced"

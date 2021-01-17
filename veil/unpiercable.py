@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 from wrapt import ObjectProxy
 
 from veil._async_dummy import async_dummy
-from veil.veil import Bool
+from veil.veil_factory import VeilFactory
 
 
 class Unpiercable:
@@ -26,6 +26,11 @@ class Unpiercable:
         self._methods = {} if methods is None else methods
         self._async_methods = {} if async_methods is None else async_methods
         self._props = {} if props is None else props
+
+    def __repr__(self):
+        return "<{} at 0x{:x} for {} at 0x{:x}>".format(
+            type(self).__name__, id(self), type(self._origin).__name__, id(self._origin)
+        )
 
     def __getattribute__(self, attr):
         if attr == "__class__":
@@ -61,3 +66,6 @@ class CachedAsyncMethod(ObjectProxy):
 
     def __call__(self, *args, **kwargs):
         return async_dummy(self._self_cached)
+
+
+unpiercable = VeilFactory(Unpiercable).veil_of

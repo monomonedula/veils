@@ -4,16 +4,11 @@ from typing import Dict, Any, Optional
 from wrapt import ObjectProxy
 
 from veil._async_dummy import async_dummy
+from veil.veil_factory import VeilFactory
 
 
 class Veil:
-    __slots__ = (
-        "_origin",
-        "_methods",
-        "_async_methods",
-        "_props",
-        "_pierced",
-    )
+    __slots__ = ("_origin", "_methods", "_async_methods", "_props", "_pierced")
 
     def __init__(
         self,
@@ -28,6 +23,11 @@ class Veil:
         self._async_methods = {} if async_methods is None else async_methods
         self._props = {} if props is None else props
         self._pierced: Bool = Bool(False)
+
+    def __repr__(self):
+        return "<{} at 0x{:x} for {} at 0x{:x}>".format(
+            type(self).__name__, id(self), type(self._origin).__name__, id(self._origin)
+        )
 
     def __getattribute__(self, attr):
         if attr == "__class__":
@@ -102,3 +102,6 @@ class VeiledPiercableMethod(ObjectProxy):
     def __call__(self, *args, **kwargs):
         self._self_pierced.value = True
         return self.__wrapped__(*args, **kwargs)
+
+
+veil = VeilFactory(Veil).veil_of
