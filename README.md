@@ -28,7 +28,7 @@ obj.foo()       # returns "42"
 ```
 
 The methods `__str__` and `foo` will return "Hello, world!" and "42" respectively
-until some other method is called and the veil "pierced".
+until some other method is called and the veil is "pierced".
 
 You can also use `unpiercable` decorator, which will never be pierced: a very good instrument for data memoization.
 
