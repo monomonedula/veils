@@ -11,7 +11,7 @@ Long story short, it provides convenient object decorators for data memoization.
 
 ## Installation
 
-`pip install veil`
+`pip install veils`
 
 ## Usage
 
