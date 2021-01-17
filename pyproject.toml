@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "veils"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python Veil Objects"
 authors = ["monomonedula <valh@tuta.io>"]
 license = "MIT"
