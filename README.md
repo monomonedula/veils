@@ -1,10 +1,10 @@
-# Veil
+# Veils
 [![EO principles respected here](https://www.elegantobjects.org/badge.svg)](https://www.elegantobjects.org)
 [![Build Status](https://travis-ci.org/monomonedula/veil.svg?branch=main)](https://travis-ci.org/monomonedula/veil)
 [![codecov](https://codecov.io/gh/monomonedula/veil/branch/main/graph/badge.svg)](https://codecov.io/gh/monomonedula/veil)
 [![PyPI version](https://badge.fury.io/py/veil.svg)](https://badge.fury.io/py/veil)
 
-`veil` is a python implementation of a ruby [veils package](https://github.com/yegor256/veils).
+`veils` is a python implementation of a ruby [veils package](https://github.com/yegor256/veils).
 Long story short, it provides convenient object decorators for data memoization.
 
 
