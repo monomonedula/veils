@@ -3,8 +3,8 @@ from typing import Dict, Any, Optional
 
 from wrapt import ObjectProxy
 
-from veil._async_dummy import async_dummy
-from veil.veil_factory import VeilFactory
+from veils._async_dummy import async_dummy
+from veils.veil_factory import VeilFactory
 
 
 class Veil:

@@ -2,9 +2,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from veil.veil import Veil
-from veil.veil import veil
-from veil.unpiercable import Unpiercable, unpiercable
+from veils.veil import Veil
+from veils.veil import veil
+from veils.unpiercable import Unpiercable, unpiercable
 
 
 class Foo:

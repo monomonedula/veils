@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "veil"
+name = "veils"
 version = "0.1.1"
 description = "Python Veil Objects"
 authors = ["monomonedula <valh@tuta.io>"]

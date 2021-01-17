@@ -15,16 +15,15 @@ Long story short, it provides convenient object decorators for data memoization.
 
 ## Usage
 
-
 ```python
-from veil import veil
+from veils import veil
 
 obj = veil(
     obj,
     methods={"__str__": "hello, world!", "foo": "42"}
 )
-str(obj)        # returns "hello, world!"
-obj.foo()       # returns "42"
+str(obj)  # returns "hello, world!"
+obj.foo()  # returns "42"
 ```
 
 The methods `__str__` and `foo` will return "Hello, world!" and "42" respectively
