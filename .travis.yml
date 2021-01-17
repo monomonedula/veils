@@ -10,4 +10,4 @@ script:
   - pytest --cov veil/ --cov-report xml
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - ./publish.sh
+  - bash ./publish.sh
