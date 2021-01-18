@@ -76,7 +76,6 @@ def _naked_dunder(name):
 
 def _dunder_proxy(name):
     def dunder_wrapper(self, *args, **kwargs):
-        print("dunder", name)
         return self.__getattr__(name)(*args, **kwargs)
 
     return dunder_wrapper
