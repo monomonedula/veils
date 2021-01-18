@@ -28,7 +28,7 @@ class Memo:
         wrapped,
         *,
         cacheable: Collection[str] = None,
-        cache: Callable[[], MutableMapping] = LRUCache,
+        cache: Callable[[], MutableMapping] = lambda: LRUCache(maxsize=128),
         key: Key = hashkey
     ):
         self._origin = wrapped
@@ -53,13 +53,13 @@ class Memo:
                 attr = getattr(self._origin, item)
                 if callable(attr):
                     if iscoroutinefunction(attr):
-                        self.__cached[item] = MemoizedMethod(
+                        self.__cached[item] = MemoizedAsyncMethod(
                             attr,
                             self.__new_cache(),
                             self.__key,
                         )
                     else:
-                        self.__cached[item] = MemoizedAsyncMethod(
+                        self.__cached[item] = MemoizedMethod(
                             attr,
                             self.__new_cache(),
                             self.__key,
