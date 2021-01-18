@@ -1,4 +1,6 @@
+from inspect import iscoroutinefunction
 from typing import Optional, Dict, Any
+import warnings
 
 from wrapt import ObjectProxy
 
@@ -10,7 +12,6 @@ class Unpiercable:
     __slots__ = (
         "_origin",
         "_methods",
-        "_async_methods",
         "_props",
     )
 
@@ -24,7 +25,9 @@ class Unpiercable:
     ):
         self._origin = wrapped
         self._methods = {} if methods is None else methods
-        self._async_methods = {} if async_methods is None else async_methods
+        if async_methods is not None:
+            warnings.warn("'async_methods' argument is deprecated and will be removed in v1.0.0. Use 'methods' instead.")
+            self._methods.update(**async_methods)
         self._props = {} if props is None else props
 
     def __repr__(self):
@@ -40,14 +43,12 @@ class Unpiercable:
     def __getattr__(self, attr):
         if attr in self._props:
             return self._props[attr]
-        elif attr in self._methods:
-            return CachedMethod(getattr(self._origin, attr), self._methods[attr])
-        elif attr in self._async_methods:
-            return CachedAsyncMethod(
-                getattr(self._origin, attr), self._async_methods[attr]
-            )
-
-        return getattr(self._origin, attr)
+        method = getattr(self._origin, attr)
+        if attr in self._methods:
+            if iscoroutinefunction(method):
+                return CachedAsyncMethod(method, self._methods[attr])
+            return CachedMethod(method, self._methods[attr])
+        return method
 
 
 class CachedMethod(ObjectProxy):

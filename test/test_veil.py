@@ -1,5 +1,3 @@
-from unittest.mock import Mock
-
 import pytest
 
 from veils.veil import Veil
@@ -137,16 +135,29 @@ async def test_unpiercable(veil_class):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("veil_class", [veil, Veil, unpiercable, Unpiercable])
 async def test_not_calling_decorated(veil_class):
-    mock = Mock()
+    class Wrapped:
+        def __init__(self):
+            self.bar_call_count = 0
+            self.async_bar_call_count = 0
+
+        def bar(self):
+            self.bar_call_count += 1
+            return 42
+
+        async def async_bar(self):
+            self.async_bar_call_count += 1
+            return 44
+
+    obj = Wrapped()
     veiled = veil_class(
-        mock,
+        obj,
         methods={"bar": 69},
-        async_methods={"dummy_async": "Decorated dummy"},
+        async_methods={"async_bar": "Decorated dummy"},
     )
     assert veiled.bar() == 69
-    assert await veiled.dummy_async() == "Decorated dummy"
-    mock.bar.assert_not_called()
-    mock.dummy_async.assert_not_called()
+    assert await veiled.async_bar() == "Decorated dummy"
+    assert obj.bar_call_count == 0
+    assert obj.async_bar_call_count == 0
 
 
 @pytest.mark.parametrize("veil_class", [veil, Veil, unpiercable, Unpiercable])
