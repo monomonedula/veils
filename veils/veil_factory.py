@@ -39,10 +39,7 @@ class VeilFactory:
     def veil_of(
         self,
         obj,
-        *,
-        methods: Optional[Dict[str, Any]] = None,
-        async_methods: Optional[Dict[str, Any]] = None,
-        props: Optional[Dict[str, Any]] = None,
+        **kwargs
     ):
         class VeilMeta(type):
             def __new__(mcs, name, bases, dct):
@@ -64,7 +61,7 @@ class VeilFactory:
         class _Veil(self._veil_class, metaclass=VeilMeta):
             pass
 
-        return _Veil(obj, methods=methods, async_methods=async_methods, props=props)
+        return _Veil(obj, **kwargs)
 
 
 def _naked_dunder(name):

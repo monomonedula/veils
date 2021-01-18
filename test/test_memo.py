@@ -1,6 +1,6 @@
 import pytest
 
-from veils.memo import Memo
+from veils.memo import Memo, memo
 
 
 class Foo:
@@ -21,9 +21,10 @@ class Foo:
 
 
 @pytest.mark.asyncio
-async def test_memo_simple():
+@pytest.mark.parametrize("memo_class", [Memo, memo])
+async def test_memo_simple(memo_class):
     f = Foo()
-    m = Memo(f, cacheable={"sum", "sub"})
+    m = memo_class(f, cacheable={"sum", "sub"})
     assert m.sum(40, 2) == 42
     assert await m.sub(2) == 40
     assert m.sum(40, 2) == 42

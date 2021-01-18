@@ -8,6 +8,8 @@ from typing_extensions import Protocol
 from cachetools import LRUCache
 from wrapt import ObjectProxy
 
+from veils.veil_factory import VeilFactory
+
 
 class Key(Protocol):
     def __call__(self, *args, **kwargs) -> tuple:
@@ -108,3 +110,6 @@ class MemoizedAsyncMethod(ObjectProxy):
         except ValueError:
             pass  # value too large
         return v
+
+
+memo = VeilFactory(Memo).veil_of
