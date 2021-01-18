@@ -1,4 +1,3 @@
-from inspect import isroutine
 from typing import Dict, Any, Optional
 
 from wrapt import ObjectProxy
@@ -51,7 +50,7 @@ class Veil:
                     self._pierced,
                 )
         item = self._origin.__getattribute__(attr)
-        if isroutine(item):
+        if callable(item):
             item = VeiledPiercableMethod(item, self._pierced)
         else:
             self._pierced.value = True
