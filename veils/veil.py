@@ -22,7 +22,9 @@ class Veil:
         self._origin = wrapped
         self._methods = {} if methods is None else methods
         if async_methods is not None:
-            warnings.warn("'async_methods' argument is deprecated and will be removed in v1.0.0. Use 'methods' instead.")
+            warnings.warn(
+                "'async_methods' argument is deprecated and will be removed in v1.0.0. Use 'methods' instead."
+            )
             self._methods.update(**async_methods)
         self._props = {} if props is None else props
         self._pierced: Bool = Bool(False)
@@ -108,4 +110,16 @@ class VeiledPiercableMethod(ObjectProxy):
         return self.__wrapped__(*args, **kwargs)
 
 
-veil = VeilFactory(Veil).veil_of
+_default_factory = VeilFactory(Veil)
+
+
+def veil(
+    wrapped,
+    *,
+    methods: Optional[Dict[str, Any]] = None,
+    async_methods: Optional[Dict[str, Any]] = None,
+    props: Optional[Dict[str, Any]] = None,
+):
+    return _default_factory.veil_of(
+        wrapped, methods=methods, async_methods=async_methods, props=props
+    )

@@ -36,11 +36,7 @@ class VeilFactory:
         if naked_dunders is not None:
             self._naked_dunders = naked_dunders
 
-    def veil_of(
-        self,
-        obj,
-        **kwargs
-    ):
+    def veil_of(self, obj, **kwargs):
         class VeilMeta(type):
             def __new__(mcs, name, bases, dct):
                 for method in (

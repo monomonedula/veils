@@ -112,4 +112,14 @@ class MemoizedAsyncMethod(ObjectProxy):
         return v
 
 
-memo = VeilFactory(Memo).veil_of
+_veil_factory = VeilFactory(Memo)
+
+
+def memo(
+    wrapped,
+    *,
+    cacheable: Collection[str] = None,
+    cache: Callable[[], MutableMapping] = lambda: LRUCache(maxsize=128),
+    key: Key = hashkey
+):
+    return _veil_factory.veil_of(wrapped, cacheable=cacheable, cache=cache, key=key)

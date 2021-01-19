@@ -8,7 +8,7 @@ class Foo:
         self._sum = 0
 
     def sum(self, a, b):
-        self._sum += + a + b
+        self._sum += +a + b
         return self._sum
 
     async def sub(self, a):
@@ -18,6 +18,9 @@ class Foo:
     async def mul(self, a):
         self._sum *= a
         return self._sum
+
+    def __str__(self):
+        return "Foo ({})".format(self._sum)
 
 
 @pytest.mark.asyncio
@@ -32,3 +35,13 @@ async def test_memo_simple(memo_class):
 
     assert await m.mul(3) == 120
     assert await m.mul(3) == 360
+
+
+@pytest.mark.asyncio
+def test_memo_magic_methods():
+    f = Foo()
+    m = memo(f, cacheable={"sum", "__str__"})
+    assert str(m) == "Foo (0)"
+    assert m.sum(40, 2) == 42
+    assert str(m) == "Foo (0)"
+    assert str(f) == "Foo (42)"
