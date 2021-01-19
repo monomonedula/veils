@@ -51,8 +51,17 @@ obj = veil(
 obj.bar     # equals "42"
 ```
 
+This library also extends the original one with a caching decorator `memo`. Use it like this:
+```python
+from veils import memo
 
-
+obj = memo(
+    obj,
+    cacheable={"foo", "bar", "baz", "__str__"} 
+    # 'cacheable' is a collection of methods (both regular and asynchronous) 
+    # and properties to be cached
+)
+```
 
 ## Advanced usage
 
