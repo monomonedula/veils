@@ -1,6 +1,6 @@
 # Veils
 [![EO principles respected here](https://www.elegantobjects.org/badge.svg)](https://www.elegantobjects.org)
-[![Build Status](https://travis-ci.org/monomonedula/veil.svg?branch=main)](https://travis-ci.org/monomonedula/veil)
+[![Build Status](https://travis-ci.org/monomonedula/veils.svg?branch=main)](https://travis-ci.org/monomonedula/veils)
 [![codecov](https://codecov.io/gh/monomonedula/veil/branch/main/graph/badge.svg)](https://codecov.io/gh/monomonedula/veil)
 [![PyPI version](https://badge.fury.io/py/veils.svg)](https://badge.fury.io/py/veils)
 
