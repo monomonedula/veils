@@ -1,4 +1,8 @@
+import functools
+
 import pytest
+from async_lru import alru_cache
+from wirerope import Wire, WireRope
 
 from veils.veil import Veil
 from veils.veil import veil
@@ -168,3 +172,48 @@ def test_repr(veil_class):
         type(veiled).__name__, id(veiled), type(obj).__name__, id(obj)
     )
     assert veiled.bar() == 69, "should not be pierced"
+
+
+
+
+class _LruCacheWire(Wire):
+    def __init__(self, rope, *args, **kwargs):
+        super(_LruCacheWire, self).__init__(rope, *args, **kwargs)
+        lru_args, lru_kwargs = rope._args
+        wrapper = alru_cache(*lru_args, **lru_kwargs)(self.__func__)
+        self.__call__ = wrapper
+        self.cache_clear = wrapper.cache_clear
+        self.cache_info = wrapper.cache_info
+
+    def __call__(self, *args, **kwargs):
+        # descriptor detection support - never called
+        return self.__call__(*args, **kwargs)
+
+    def _on_property(self):
+        return self.__call__()
+
+
+@functools.wraps(alru_cache)
+def async_lru_cache(*args, **kwargs):
+    return WireRope(_LruCacheWire, wraps=True, rope_args=(args, kwargs))
+
+
+class Decorated:
+    def __init__(self):
+        self.x = 0
+
+    @async_lru_cache()
+    async def foo(self):
+        self.x += 1
+        return self.x
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("veil_class", [veil, unpiercable, Veil, Unpiercable])
+async def test_on_async_callable(veil_class):
+    """Testing compatibility for decorated async methods"""
+    obj = veil_class(Decorated(), async_methods={"foo": 53})
+    assert await obj.foo() == 53
+    assert await obj.foo() == 53
+
+

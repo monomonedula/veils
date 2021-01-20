@@ -1,4 +1,3 @@
-import warnings
 from inspect import iscoroutinefunction
 from typing import Dict, Any, Optional
 
@@ -9,7 +8,7 @@ from veils.veil_factory import VeilFactory
 
 
 class Veil:
-    __slots__ = ("_origin", "_methods", "_props", "_pierced")
+    __slots__ = ("_origin", "_methods", "_async_methods", "_props", "_pierced")
 
     def __init__(
         self,
@@ -21,11 +20,7 @@ class Veil:
     ):
         self._origin = wrapped
         self._methods = {} if methods is None else methods
-        if async_methods is not None:
-            warnings.warn(
-                "'async_methods' argument is deprecated and will be removed in v1.0.0. Use 'methods' instead."
-            )
-            self._methods.update(**async_methods)
+        self._async_methods = {} if async_methods is None else async_methods
         self._props = {} if props is None else props
         self._pierced: Bool = Bool(False)
 
@@ -45,7 +40,7 @@ class Veil:
                 return self._props[attr]
             elif attr in self._methods:
                 method = getattr(self._origin, attr)
-                if iscoroutinefunction(method):
+                if iscoroutinefunction(method) or iscoroutinefunction(method.__call__):
                     return VeiledAsyncMethod(
                         method,
                         self._methods[attr],
@@ -54,6 +49,12 @@ class Veil:
                 return VeiledMethod(
                     method,
                     self._methods[attr],
+                    self._pierced,
+                )
+            elif attr in self._async_methods:
+                return VeiledAsyncMethod(
+                    getattr(self._origin, attr),
+                    self._async_methods[attr],
                     self._pierced,
                 )
         item = self._origin.__getattribute__(attr)
